@@ -111,6 +111,24 @@ class ProductItem extends StatelessWidget {
                   productId: product.id,
                   title: product.title,
                   price: product.price);
+
+              //Clear current snackbars
+              Scaffold.of(context).hideCurrentSnackBar();
+              //to get the nearest widget that controls
+              //the page we're seeing
+              Scaffold.of(context).showSnackBar(SnackBar(
+                content: Text(
+                  'Added tem to cart!',
+                  textAlign: TextAlign.center,
+                ),
+                duration: Duration(seconds: 2),
+                action: SnackBarAction(
+                  label: 'UNDO',
+                  onPressed: () {
+                    cart.removeSingleItem(product.id);
+                  },
+                ),
+              ));
             },
           ),
         ),
