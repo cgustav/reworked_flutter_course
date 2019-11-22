@@ -70,6 +70,7 @@ class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> {
       ),
 
       drawer: AppDrawer(),
+
       // GridView builder render a grid of
       //widget from an array of objects.
       body: ProductsGrid(

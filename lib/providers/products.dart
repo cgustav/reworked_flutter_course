@@ -56,11 +56,25 @@ class Products with ChangeNotifier {
       _items.where((product) => product.isFavorite).toList();
 
   void addProduct(Product item) {
+    item.id = DateTime.now().toString();
     _items.add(item);
     //This portion interacts with
     //listeners asociated with involved
     //widgets responsible of displaying
     //this data
+    notifyListeners();
+  }
+
+  void editProduct(Product newProduct) {
+    final int ex = _items.indexWhere((product) => product.id == newProduct.id);
+    if (ex >= 0) {
+      _items[ex] = newProduct;
+      notifyListeners();
+    }
+  }
+
+  void deleteProduct(String productId) {
+    _items.removeWhere((product) => product.id == productId);
     notifyListeners();
   }
 
