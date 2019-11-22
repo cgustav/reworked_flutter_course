@@ -20,3 +20,23 @@ of app development using Flutter Framework.
    * Introducing to [FocusNode Class](https://flutter.dev/docs/cookbook/forms/focus)
    * Introducing to [Text editing controllers](https://flutter.dev/docs/cookbook/forms/text-field-changes)   
    * Introducing to [Forms Validation](https://flutter.dev/docs/cookbook/forms/validation)
+
+  ### [Module 10] - Http Requests
+   * Now data that we're managing with our app (i.e products, orders, carts and more) persist   through any APP restart, closing, etc.
+   * Introducing to Storing Data & HTTP
+   * Introducing to [Firebase database](https://firebase.google.com/docs/database/?hl=es-419)
+   * Implementing [Firebase](https://firebase.google.com/docs/flutter/setup) to our flutter project - [Extra]()
+   * Introducing to HTTP Requests (store/fetch data)
+   * Implementing official [HTTP package for flutter](https://pub.dev/packages/http#-readme-tab-)
+   * Introducing to loading progress status
+   * Handling Errors
+  
+
+    #### Storing data
+    ![](./screenshots/storing_data.png)
+
+    #### Connecting flutter to a database
+    ![](./screenshots/connecting_db.png)
+
+    #### Http Request
+    ![](./screenshots/http_http_requests.png)

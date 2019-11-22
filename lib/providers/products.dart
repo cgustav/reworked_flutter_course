@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:reworked_flutter_course/providers/product.dart';
-
+import 'package:http/http.dart' as http;
 //you can implement the ChangeNotifier
 //mixin in your classes to to then trigger
 //notifyListeners() whenever you want to
@@ -45,12 +45,7 @@ class Products with ChangeNotifier {
     ),
   ];
 
-  List<Product> get items {
-    // return (_showFavoritesOnly)
-    //     ? _items.where((Product product) => product.isFavorite).toList()
-    //     : List.of(_items);
-    return List.of(_items);
-  }
+  List<Product> get items => List.of(_items);
 
   List<Product> get favoriteItems =>
       _items.where((product) => product.isFavorite).toList();
