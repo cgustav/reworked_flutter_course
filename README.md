@@ -24,19 +24,20 @@ of app development using Flutter Framework.
   ### [Module 10] - Http Requests
    * Now data that we're managing with our app (i.e products, orders, carts and more) persist   through any APP restart, closing, etc.
    * Introducing to Storing Data & HTTP
-   * Introducing to [Firebase database](https://firebase.google.com/docs/database/?hl=es-419)
-   * Implementing [Firebase](https://firebase.google.com/docs/flutter/setup) to our flutter project - [Extra]()
    * Introducing to HTTP Requests (store/fetch data)
+   * Introducing to [asynchronous programming](https://developer.mozilla.org/en-US/docs/Learn/JavaScript/Asynchronous/Concepts) with [dart](https://www.freecodecamp.org/news/dart-asynchronous-programming-futures-5b20c62a91c0/), [Futures](https://medium.com/dartlang/dart-asynchronous-programming-futures-96937f831137) & [async await](https://dart.dev/codelabs/async-await)
+   * Introducing to [Firebase database](https://firebase.google.com/docs/database/?hl=es-419)
+   * Implementing [Firebase](https://firebase.google.com/docs/flutter/setup) to our flutter project.
    * Implementing official [HTTP package for flutter](https://pub.dev/packages/http#-readme-tab-)
    * Introducing to loading progress status
    * Handling Errors
+   * [HTTP StatusCodes - Extra](https://en.wikipedia.org/wiki/List_of_HTTP_status_codes)
   
+#### Storing data
+![](./screenshots/storing_data.png)
 
-    #### Storing data
-    ![](./screenshots/storing_data.png)
+#### Connecting flutter to a database
+![](./screenshots/connecting_db.png)
 
-    #### Connecting flutter to a database
-    ![](./screenshots/connecting_db.png)
-
-    #### Http Request
-    ![](./screenshots/http_http_requests.png)
+#### Http Request
+![](./screenshots/http_requests.png)

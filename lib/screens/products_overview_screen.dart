@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:reworked_flutter_course/providers/cart.dart';
+import 'package:reworked_flutter_course/providers/products.dart';
 
 import 'package:reworked_flutter_course/screens/cart_screen.dart';
 import 'package:reworked_flutter_course/widgets/app_drawer.dart';
 import 'package:reworked_flutter_course/widgets/badge.dart';
 import 'package:reworked_flutter_course/widgets/products_grid.dart';
+import 'package:http/http.dart' as http;
 
 //to manage pop menu available options
 enum FilterOptions { Favorites, All }
@@ -22,6 +24,39 @@ class ProductsOverviewScreen extends StatefulWidget {
 
 class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> {
   bool _showFavorites = false;
+  bool _isInit = true;
+  bool _isLoading = false;
+
+  void setLoading(bool state) {
+    setState(() {
+      _isLoading = state;
+    });
+  }
+
+  //it will be executed before initState
+  @override
+  void didChangeDependencies() {
+    if (_isInit) {
+      print('isInit es verdadero');
+      setLoading(true);
+      Provider.of<Products>(context).fetchAndSetProducts().then((_) {
+        setLoading(false);
+      });
+    }
+
+    _isInit = false;
+    super.didChangeDependencies();
+  }
+
+  @override
+  void initState() {
+    //Provider.of<Products>(context).fetchAndSetProducts(); WONT WORK
+    //; WONT WORK
+    // Future.delayed(Duration.zero).then((_){
+    //  Provider.of<Products>(context).fetchAndSetProducts()
+    // });
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -73,9 +108,13 @@ class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> {
 
       // GridView builder render a grid of
       //widget from an array of objects.
-      body: ProductsGrid(
-        showFavs: _showFavorites,
-      ),
+      body: (_isLoading)
+          ? Center(
+              child: CircularProgressIndicator(),
+            )
+          : ProductsGrid(
+              showFavs: _showFavorites,
+            ),
     );
   }
 }

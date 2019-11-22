@@ -29,6 +29,8 @@ class _EditProductScreenState extends State<EditProductScreen> {
       imageUrl: '',
       isFavorite: false);
 
+  bool _isLoading = false;
+
   @override
   void initState() {
     //We add a listener to get an specific behavior
@@ -100,6 +102,12 @@ class _EditProductScreenState extends State<EditProductScreen> {
     super.dispose();
   }
 
+  void setLoading(bool state) {
+    setState(() {
+      _isLoading = state;
+    });
+  }
+
   //This a trick to force the image preview
   //on the image url input when the text field
   //loose its focus.
@@ -110,9 +118,11 @@ class _EditProductScreenState extends State<EditProductScreen> {
   }
 
   //
-  void _saveForm() {
+  void _saveForm() async {
     final bool isValid = _formKey.currentState.validate();
     if (!isValid) return;
+
+    setLoading(true);
 
 /*
     So this is the logic to differenciate between {editing}
@@ -132,14 +142,37 @@ class _EditProductScreenState extends State<EditProductScreen> {
        to create a new product.
 
 */
+    _formKey.currentState.save();
 
     if (_editedProduct.id != null)
-      Provider.of<Products>(context, listen: false).editProduct(_editedProduct);
+      await Provider.of<Products>(context, listen: false)
+          .editProduct(_editedProduct);
     else {
-      Provider.of<Products>(context, listen: false).addProduct(_editedProduct);
+      try {
+        await Provider.of<Products>(context, listen: false)
+            .addProduct(_editedProduct);
+      } catch (e) {
+        await showDialog(
+            context: context,
+            builder: (BuildContext ctx) => AlertDialog(
+                  title: Text('An error occurred!'),
+                  content: Text('Something went wrong. Try it later.'),
+                  actions: <Widget>[
+                    FlatButton(
+                      child: Text('Okay'),
+                      onPressed: () {
+                        Navigator.of(ctx).pop();
+                      },
+                    )
+                  ],
+                ));
+        // } finally {
+        //   setLoading(false);
+        //   Navigator.of(context).pop();
+        // }
+      }
     }
-
-    _formKey.currentState.save();
+    setLoading(false);
     Navigator.of(context).pop();
   }
 
@@ -184,122 +217,128 @@ class _EditProductScreenState extends State<EditProductScreen> {
       //prooperties to manage the way we collect,
       //display and validate the incoming data from
       //the user
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Form(
-          key: _formKey,
-          child: ListView(
-            children: <Widget>[
-              TextFormField(
-                initialValue: _initValues['title'],
-                decoration: InputDecoration(labelText: 'Title'),
-                textInputAction: TextInputAction.next,
-                onFieldSubmitted: (_) {
-                  //This tells to flutter when this textfield
-                  //is submitted we actually want to focus the
-                  //element with [_priceFocusNode]
-                  FocusScope.of(context).requestFocus(_priceFocusNode);
-                },
-                validator: (String text) {
-                  if (text.isEmpty) return 'Plase provide a value.';
-                  return null;
-                },
-                onSaved: (String text) {
-                  _editedProduct.title = text;
-                },
-              ),
-              TextFormField(
-                initialValue: _initValues['price'],
-                decoration: InputDecoration(labelText: 'Price'),
-                keyboardType: TextInputType.number,
-                focusNode: _priceFocusNode,
-                textInputAction: TextInputAction.next,
-                onFieldSubmitted: (_) {
-                  FocusScope.of(context).requestFocus(_descriptionFocusNode);
-                },
-                validator: (String text) {
-                  if (text.isEmpty) return 'Plase enter a price.';
-                  if (double.tryParse(text) == null)
-                    return 'Plase enter a valid number.';
-                  if (double.parse(text) <= 0)
-                    return 'please enter a number greater than 0.';
-                  return null;
-                },
-                onSaved: (String text) {
-                  _editedProduct.price = double.parse(text);
-                },
-              ),
-              TextFormField(
-                initialValue: _initValues['description'],
-                decoration: InputDecoration(labelText: 'Description'),
-                maxLines: 3,
-                focusNode: _descriptionFocusNode,
-                keyboardType: TextInputType.multiline,
-                textInputAction: TextInputAction.next,
-                onFieldSubmitted: (_) {
-                  FocusScope.of(context).requestFocus(_imageUrlFocusNode);
-                },
-                onSaved: (String text) {
-                  _editedProduct.description = text;
-                },
-                validator: (String text) {
-                  if (text.isEmpty) return 'Plase enter a description.';
-                  if (text.length < 10)
-                    return 'Should be ar least 10 characters long.';
-                  return null;
-                },
-              ),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: <Widget>[
-                  Container(
-                    width: 100,
-                    height: 100,
-                    margin: EdgeInsets.only(top: 8, right: 10),
-                    decoration: BoxDecoration(
-                        border: Border.all(width: 1, color: Colors.grey)),
-                    child: (_imageUrlController.text.isEmpty)
-                        ? Text('Enter a URL')
-                        : FittedBox(
-                            child: Image.network(
-                              _imageUrlController.text,
-                              fit: BoxFit.cover,
-                            ),
-                          ),
-                  ),
-                  Expanded(
-                    child: TextFormField(
-                      controller: _imageUrlController,
-                      decoration: InputDecoration(labelText: 'Image URL'),
-                      keyboardType: TextInputType.url,
-                      textInputAction: TextInputAction.done,
-                      focusNode: _imageUrlFocusNode,
+      body: (_isLoading)
+          ? Center(
+              child: CircularProgressIndicator(),
+            )
+          : Padding(
+              padding: const EdgeInsets.all(16),
+              child: Form(
+                key: _formKey,
+                child: ListView(
+                  children: <Widget>[
+                    TextFormField(
+                      initialValue: _initValues['title'],
+                      decoration: InputDecoration(labelText: 'Title'),
+                      textInputAction: TextInputAction.next,
                       onFieldSubmitted: (_) {
-                        _saveForm();
+                        //This tells to flutter when this textfield
+                        //is submitted we actually want to focus the
+                        //element with [_priceFocusNode]
+                        FocusScope.of(context).requestFocus(_priceFocusNode);
                       },
                       validator: (String text) {
-                        if (text.isEmpty) return 'Please enter an image URL.';
-                        if (!text.startsWith('http') ||
-                            !text.startsWith('https'))
-                          return 'Please enter a valid URL.';
-                        if (!text.endsWith('.png') &&
-                            !text.endsWith('.jpg') &&
-                            !text.endsWith('.jepg') &&
-                            !text.endsWith('.gif'))
-                          return 'Please enter a valid image URL.';
+                        if (text.isEmpty) return 'Plase provide a value.';
                         return null;
                       },
                       onSaved: (String text) {
-                        _editedProduct.imageUrl = text;
+                        _editedProduct.title = text;
                       },
                     ),
-                  )
-                ],
-              )
-            ],
-          ),
-        ),
-      ),
+                    TextFormField(
+                      initialValue: _initValues['price'],
+                      decoration: InputDecoration(labelText: 'Price'),
+                      keyboardType: TextInputType.number,
+                      focusNode: _priceFocusNode,
+                      textInputAction: TextInputAction.next,
+                      onFieldSubmitted: (_) {
+                        FocusScope.of(context)
+                            .requestFocus(_descriptionFocusNode);
+                      },
+                      validator: (String text) {
+                        if (text.isEmpty) return 'Plase enter a price.';
+                        if (double.tryParse(text) == null)
+                          return 'Plase enter a valid number.';
+                        if (double.parse(text) <= 0)
+                          return 'please enter a number greater than 0.';
+                        return null;
+                      },
+                      onSaved: (String text) {
+                        _editedProduct.price = double.parse(text);
+                      },
+                    ),
+                    TextFormField(
+                      initialValue: _initValues['description'],
+                      decoration: InputDecoration(labelText: 'Description'),
+                      maxLines: 3,
+                      focusNode: _descriptionFocusNode,
+                      keyboardType: TextInputType.multiline,
+                      textInputAction: TextInputAction.next,
+                      onFieldSubmitted: (_) {
+                        FocusScope.of(context).requestFocus(_imageUrlFocusNode);
+                      },
+                      onSaved: (String text) {
+                        _editedProduct.description = text;
+                      },
+                      validator: (String text) {
+                        if (text.isEmpty) return 'Plase enter a description.';
+                        if (text.length < 10)
+                          return 'Should be ar least 10 characters long.';
+                        return null;
+                      },
+                    ),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: <Widget>[
+                        Container(
+                          width: 100,
+                          height: 100,
+                          margin: EdgeInsets.only(top: 8, right: 10),
+                          decoration: BoxDecoration(
+                              border: Border.all(width: 1, color: Colors.grey)),
+                          child: (_imageUrlController.text.isEmpty)
+                              ? Text('Enter a URL')
+                              : FittedBox(
+                                  child: Image.network(
+                                    _imageUrlController.text,
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
+                        ),
+                        Expanded(
+                          child: TextFormField(
+                            controller: _imageUrlController,
+                            decoration: InputDecoration(labelText: 'Image URL'),
+                            keyboardType: TextInputType.url,
+                            textInputAction: TextInputAction.done,
+                            focusNode: _imageUrlFocusNode,
+                            onFieldSubmitted: (_) {
+                              _saveForm();
+                            },
+                            validator: (String text) {
+                              if (text.isEmpty)
+                                return 'Please enter an image URL.';
+                              if (!text.startsWith('http') ||
+                                  !text.startsWith('https'))
+                                return 'Please enter a valid URL.';
+                              if (!text.endsWith('.png') &&
+                                  !text.endsWith('.jpg') &&
+                                  !text.endsWith('.jepg') &&
+                                  !text.endsWith('.gif'))
+                                return 'Please enter a valid image URL.';
+                              return null;
+                            },
+                            onSaved: (String text) {
+                              _editedProduct.imageUrl = text;
+                            },
+                          ),
+                        )
+                      ],
+                    )
+                  ],
+                ),
+              ),
+            ),
     );
   }
 }
