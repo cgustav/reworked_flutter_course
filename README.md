@@ -16,3 +16,7 @@ of app development using Flutter Framework.
    * [State Management - Extra](https://flutter.dev/docs/development/data-and-backend/state-mgmt/intro)
 
   ### [Module 9] - User interaction & Form Input
+   * Introducing to [Forms](https://medium.com/swlh/working-with-forms-in-flutter-a176cca9449a)
+   * Introducing to [FocusNode Class](https://flutter.dev/docs/cookbook/forms/focus)
+   * Introducing to [Text editing controllers](https://flutter.dev/docs/cookbook/forms/text-field-changes)   
+   * Introducing to [Forms Validation](https://flutter.dev/docs/cookbook/forms/validation)
