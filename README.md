@@ -34,10 +34,10 @@ of app development using Flutter Framework.
    * [HTTP StatusCodes - Extra](https://en.wikipedia.org/wiki/List_of_HTTP_status_codes)
   
 #### Storing data
-![](./screenshots/storing_data.png)
+<img src="./screenshots/storing_data.png" width="600" height="400"/>
 
 #### Connecting flutter to a database
-![](./screenshots/connecting_db.png)
+<img src="./screenshots/connecting_db.png" width="600" height="400"/>
 
 #### Http Request
-![](./screenshots/http_requests.png)
+<img src="./screenshots/http_requests.png" width="600" height="400"/>
