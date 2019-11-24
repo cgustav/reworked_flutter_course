@@ -26,12 +26,20 @@ class OrderItem {
 
 class Orders with ChangeNotifier {
   List<OrderItem> _orders = [];
+  final String authToken;
+  final String userId;
+
+  Orders({this.authToken, this.userId, List<OrderItem> orders}) {
+    this._orders = orders;
+  }
 
   List<OrderItem> get orders => List.from(_orders);
 
   Future<void> fetchAndSetOrders() async {
-    var response =
-        await http.get(HttpResources.firestoreDB.url(collection: 'orders'));
+    var response = await http.get(HttpResources.firestoreDB.resourceUrl(
+        collection: 'orders',
+        sufix: '/${this.userId}',
+        authToken: this.authToken));
     final List<OrderItem> loadedOrders = [];
     final extractedData = json.decode(response.body) as Map<String, dynamic>;
 
@@ -78,7 +86,10 @@ class Orders with ChangeNotifier {
       };
 
       var response = await http.post(
-          HttpResources.firestoreDB.url(collection: 'orders'),
+          HttpResources.firestoreDB.resourceUrl(
+              collection: 'orders',
+              sufix: '/${this.userId}',
+              authToken: this.authToken),
           body: json.encode(container));
 
       if (response.statusCode >= 400)

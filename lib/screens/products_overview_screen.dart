@@ -16,7 +16,8 @@ enum FilterOptions { Favorites, All }
 //(like a regular shop app).
 
 class ProductsOverviewScreen extends StatefulWidget {
-  ProductsOverviewScreen({Key key}) : super(key: key);
+  // ProductsOverviewScreen({Key key}) : super(key: key);
+  static const String routeName = '/product-overview';
 
   @override
   _ProductsOverviewScreenState createState() => _ProductsOverviewScreenState();

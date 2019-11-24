@@ -38,15 +38,22 @@ class Product with ChangeNotifier {
   ///Changes the favorite status of a
   ///product item to [true], favorite
   ///or [false], not favorite.
-  Future<void> toggleFavoriteStatus() async {
+  Future<void> toggleFavoriteStatus(
+      {@required String authToken, String userId}) async {
     final oldStatus = isFavorite;
     this.isFavorite = !isFavorite;
     notifyListeners();
 
+    final url = HttpResources.firestoreDB.baseUrl +
+        '/userFavorites/$userId/$id.json?auth=$authToken';
     try {
-      var response = await http.patch(
-          HttpResources.firestoreDB.url(sufix: '/${this.id}'),
-          body: json.encode({'isFavorite': this.isFavorite}));
+      var response = await http.put(
+          // HttpResources.firestoreDB.resourceUrl(
+          //     collection: 'products',
+          //     sufix: '/${this.id}',
+          //     authToken: authToken),
+          url,
+          body: json.encode(this.isFavorite));
 
       if (response.statusCode >= 400) throw new Exception(response.body);
     } catch (error) {

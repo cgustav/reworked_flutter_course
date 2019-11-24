@@ -49,23 +49,51 @@ class Products with ChangeNotifier {
     // ),
   ];
 
+  final String authToken;
+  final String userId;
+
+  Products({this.authToken, List<Product> items, this.userId}) {
+    _items = items;
+  }
+
   List<Product> get items => List.of(_items);
 
   List<Product> get favoriteItems =>
       _items.where((product) => product.isFavorite).toList();
 
-  Future<void> fetchAndSetProducts() async {
+  Future<void> fetchAndSetProducts({bool filterByUser = false}) async {
+    final String filterArguments =
+        (filterByUser) ? '&orderBy="creatorId"&equalTo="$userId"' : '';
     try {
-      var response = await http.get(HttpResources.firestoreDB.url());
+      var response = await http.get(
+        HttpResources.firestoreDB.resourceUrl(
+            collection: 'products',
+            authToken: this.authToken,
+            extraElements: filterArguments),
+      );
 
       if (response.statusCode != 200 && response.statusCode != 201)
         throw new Exception(response.body);
 
       final extractedData = json.decode(response.body) as Map<String, dynamic>;
+
+      //we fetch the list of our favorite
+      //items, following the approach of
+      //separate liked items from actually
+      //item list fetched here.
+      final fetchFavsResponse =
+          await http.get(HttpResources.firestoreDB.resourceUrl(
+        collection: 'userFavorites',
+        sufix: '/$userId',
+        authToken: this.authToken,
+      ));
+
+      final favoriteData = json.decode(fetchFavsResponse.body);
+
       List<Product> loadedProducts = [];
       extractedData.forEach((prodId, prodData) {
-        print('ID  : $prodId');
-        print('DATA: $prodData');
+        // print('ID  : $prodId');
+        // print('DATA: $prodData');
 
         loadedProducts.add(Product(
             id: prodId,
@@ -73,7 +101,8 @@ class Products with ChangeNotifier {
             description: prodData['description'],
             price: prodData['price'],
             imageUrl: prodData['imageUrl'],
-            isFavorite: prodData['isFavorite']));
+            isFavorite:
+                favoriteData == null ? false : favoriteData[prodId] ?? false));
       });
 
       _items = loadedProducts;
@@ -90,8 +119,17 @@ class Products with ChangeNotifier {
 
     try {
       //request body must be a json object
-      var response = await http.post(HttpResources.firestoreDB.url(),
-          body: json.encode(item.toMap));
+      var response = await http.post(
+          HttpResources.firestoreDB
+              .resourceUrl(collection: 'products', authToken: this.authToken),
+          //body: json.encode(item.toMap)
+          body: json.encode({
+            'title': item.title,
+            'description': item.description,
+            'imageUrl': item.imageUrl,
+            'price': item.price,
+            'creatorId': userId
+          }));
 
       if (response.statusCode != 200 && response.statusCode != 201)
         throw new Exception(response.body);
@@ -118,7 +156,10 @@ class Products with ChangeNotifier {
     if (ex >= 0) {
       try {
         var response = await http.patch(
-            HttpResources.firestoreDB.url(sufix: '/${newProduct.id}'),
+            HttpResources.firestoreDB.resourceUrl(
+                collection: 'products',
+                sufix: '/${newProduct.id}',
+                authToken: this.authToken),
             body: json.encode(newProduct.toMap));
 
         if (response.statusCode != 200 && response.statusCode != 201)
@@ -142,8 +183,10 @@ class Products with ChangeNotifier {
     _items.removeAt(existingProductIndex);
     notifyListeners();
 
-    var response =
-        await http.delete(HttpResources.firestoreDB.url(sufix: '/$productId'));
+    var response = await http.delete(HttpResources.firestoreDB.resourceUrl(
+        collection: 'products',
+        sufix: '/$productId',
+        authToken: this.authToken));
 
     if (response.statusCode >= 400) {
       _items.insert(existingProductIndex, existingProduct);

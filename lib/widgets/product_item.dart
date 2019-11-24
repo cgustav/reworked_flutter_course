@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:reworked_flutter_course/providers/auth.dart';
 import 'package:reworked_flutter_course/providers/cart.dart';
 import 'package:reworked_flutter_course/providers/product.dart';
 
@@ -67,7 +68,7 @@ class ProductItem extends StatelessWidget {
 
     final product = Provider.of<Product>(context, listen: false);
     final cart = Provider.of<Cart>(context, listen: false);
-
+    final authData = Provider.of<Auth>(context, listen: false);
     //ClipRRect simply forces the child widget it
     //wraps into a certain shape and therefore on
     //ClipRRect.
@@ -98,7 +99,8 @@ class ProductItem extends StatelessWidget {
                         : Icons.favorite_border),
                     color: Theme.of(context).accentColor,
                     onPressed: () {
-                      product.toggleFavoriteStatus();
+                      product.toggleFavoriteStatus(
+                          authToken: authData.token, userId: authData.userId);
                     },
                   )),
           trailing: IconButton(
