@@ -108,13 +108,72 @@ class AuthCard extends StatefulWidget {
   _AuthCardState createState() => _AuthCardState();
 }
 
-class _AuthCardState extends State<AuthCard> {
+class _AuthCardState extends State<AuthCard>
+    with SingleTickerProviderStateMixin {
   final GlobalKey<FormState> _formKey = GlobalKey();
   AuthMode _authMode = AuthMode.LogIn;
   Map<String, dynamic> _authData = {'email': '', 'password': ''};
 
   bool _isLoading = false;
   final _passwordController = TextEditingController();
+  AnimationController _controller;
+  Animation<Size> _heightAnimation;
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  void initState() {
+    /*
+    AnimationController takes two important
+    arguments: 
+      -The first one, vsync is an argument
+       were we give to the animation controller
+       a pointer at the widget in the end
+       which should watch, and only when 
+       that widget is really visible in the
+       screen, the animation should play.
+       In this way this optimizes prformance
+       because it ensures that we really 
+       only animate what is visible to the
+       user.
+     - The second one is the duration that
+       takes go forward or backward in our
+       animation.
+
+     */
+    _controller = AnimationController(
+        //pointing to this widget (AuthCard)
+        vsync: this,
+        duration: Duration(milliseconds: 300));
+
+    /*
+        The Tween class is an object that
+        instantiated gives you the tools
+        two create an animation based in 
+        two values. 
+        Tween is more like a generic class
+        because there are differents things
+        you can animate.
+
+        CurvedAnimation is a class that gives
+        the entire content of an animation
+        in particular. 
+
+        Curves.linear ensures that the distri-
+        bution on our duration of the aninmation
+        will be a constant, or linear.
+         */
+    _heightAnimation = Tween<Size>(
+            begin: Size(double.infinity, 260), end: Size(double.infinity, 320))
+        .animate(CurvedAnimation(parent: _controller, curve: Curves.linear));
+
+    _heightAnimation.addListener(() => setState(() {}));
+    super.initState();
+  }
 
   void _showErrorDialog(String message) {
     showDialog(
@@ -189,10 +248,12 @@ class _AuthCardState extends State<AuthCard> {
       setState(() {
         _authMode = AuthMode.SignUp;
       });
+      _controller.forward();
     } else {
       setState(() {
         _authMode = AuthMode.LogIn;
       });
+      _controller.reverse();
     }
   }
 
@@ -202,92 +263,98 @@ class _AuthCardState extends State<AuthCard> {
   Widget build(BuildContext context) {
     final deviceSize = MediaQuery.of(context).size;
 
-    return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
-      elevation: 8.0,
-      child: Container(
-        height: isLogin(_authMode) ? 260 : 320,
-        constraints: BoxConstraints(
-          minHeight: isLogin(_authMode) ? 260 : 320,
-        ),
-        width: deviceSize.width * 0.75,
-        padding: EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: SingleChildScrollView(
-            child: Column(
-              children: <Widget>[
-                TextFormField(
-                  decoration: InputDecoration(labelText: 'E-Mail'),
-                  keyboardType: TextInputType.emailAddress,
-                  validator: (value) {
-                    return (value.isEmpty || !value.contains('@'))
-                        ? 'Invalid email.'
-                        : null;
-                  },
-                  onSaved: (String text) {
-                    _authData['email'] = text;
-                  },
-                ),
-                TextFormField(
-                  decoration: InputDecoration(labelText: 'Password'),
-                  obscureText: true,
-                  controller: _passwordController,
-                  validator: (value) {
-                    return (value.isEmpty || value.length < 5)
-                        ? 'Invalid email.'
-                        : null;
-                  },
-                  onSaved: (String text) {
-                    _authData['password'] = text;
-                  },
-                ),
-                (!isLogin(_authMode))
-                    ? TextFormField(
-                        enabled: !isLogin(_authMode),
-                        decoration:
-                            InputDecoration(labelText: 'Confirm Password'),
-                        obscureText: true,
-                        validator: isLogin(_authMode)
-                            ? null
-                            : (String text) =>
-                                (text != _passwordController.text)
-                                    ? 'Passwords do not match.'
-                                    : null,
-                      )
-                    : Container(),
-                SizedBox(
-                  height: 20,
-                ),
-                (_isLoading)
-                    ? CircularProgressIndicator()
-                    : RaisedButton(
-                        child: Text(
-                          (isLogin(_authMode) ? 'LOGIN' : 'SIGN UP'),
+    return Container(
+      height: _heightAnimation.value.height,
+      constraints: BoxConstraints(minHeight: _heightAnimation.value.height),
+      child: Card(
+        shape:
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
+        elevation: 8.0,
+        child: Container(
+          height: isLogin(_authMode) ? 260 : 320,
+          constraints: BoxConstraints(
+            minHeight: isLogin(_authMode) ? 260 : 320,
+          ),
+          width: deviceSize.width * 0.75,
+          padding: EdgeInsets.all(16.0),
+          child: Form(
+            key: _formKey,
+            child: SingleChildScrollView(
+              child: Column(
+                children: <Widget>[
+                  TextFormField(
+                    decoration: InputDecoration(labelText: 'E-Mail'),
+                    keyboardType: TextInputType.emailAddress,
+                    validator: (value) {
+                      return (value.isEmpty || !value.contains('@'))
+                          ? 'Invalid email.'
+                          : null;
+                    },
+                    onSaved: (String text) {
+                      _authData['email'] = text;
+                    },
+                  ),
+                  TextFormField(
+                    decoration: InputDecoration(labelText: 'Password'),
+                    obscureText: true,
+                    controller: _passwordController,
+                    validator: (value) {
+                      return (value.isEmpty || value.length < 5)
+                          ? 'Invalid email.'
+                          : null;
+                    },
+                    onSaved: (String text) {
+                      _authData['password'] = text;
+                    },
+                  ),
+                  (!isLogin(_authMode))
+                      ? TextFormField(
+                          enabled: !isLogin(_authMode),
+                          decoration:
+                              InputDecoration(labelText: 'Confirm Password'),
+                          obscureText: true,
+                          validator: isLogin(_authMode)
+                              ? null
+                              : (String text) =>
+                                  (text != _passwordController.text)
+                                      ? 'Passwords do not match.'
+                                      : null,
+                        )
+                      : Container(),
+                  SizedBox(
+                    height: 20,
+                  ),
+                  (_isLoading)
+                      ? CircularProgressIndicator()
+                      : RaisedButton(
+                          child: Text(
+                            (isLogin(_authMode) ? 'LOGIN' : 'SIGN UP'),
+                          ),
+                          onPressed: _submit,
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(30)),
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 30.0, vertical: 8.0),
+                          color: Theme.of(context).primaryColor,
+                          textColor:
+                              Theme.of(context).primaryTextTheme.button.color,
                         ),
-                        onPressed: _submit,
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(30)),
-                        padding: EdgeInsets.symmetric(
-                            horizontal: 30.0, vertical: 8.0),
-                        color: Theme.of(context).primaryColor,
-                        textColor:
-                            Theme.of(context).primaryTextTheme.button.color,
-                      ),
-                FlatButton(
-                  child: Text(
-                      '${isLogin(_authMode) ? 'SIGN UP' : 'LOGIN'} INSTEAD'),
-                  onPressed: _switchAuthMode,
-                  padding: EdgeInsets.symmetric(horizontal: 30, vertical: 4.0),
-                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                  textColor: Theme.of(context).primaryColor,
-                ),
-              ],
+                  FlatButton(
+                    child: Text(
+                        '${isLogin(_authMode) ? 'SIGN UP' : 'LOGIN'} INSTEAD'),
+                    onPressed: _switchAuthMode,
+                    padding:
+                        EdgeInsets.symmetric(horizontal: 30, vertical: 4.0),
+                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    textColor: Theme.of(context).primaryColor,
+                  ),
+                ],
+              ),
             ),
           ),
         ),
+        //child: child,
       ),
-      //child: child,
     );
   }
 }
