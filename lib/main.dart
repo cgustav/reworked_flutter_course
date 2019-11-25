@@ -11,6 +11,7 @@ import 'package:reworked_flutter_course/screens/orders_screen.dart';
 import 'package:reworked_flutter_course/screens/product_detail_screen.dart';
 import 'package:reworked_flutter_course/screens/products_overview_screen.dart';
 import 'package:provider/provider.dart';
+import 'package:reworked_flutter_course/screens/splash_screen.dart';
 import 'package:reworked_flutter_course/screens/user_products.dart';
 
 void main() => runApp(MyApp());
@@ -102,6 +103,41 @@ class MyApp extends StatelessWidget {
               orders: (prevOrders == null) ? [] : prevOrders.orders),
         )
       ],
+      /* 
+      The Home will be completely different depending on
+      if there is a valid living session from a user with
+      a valid token or not.
+
+      So, first we check with Provider's Consumer widget
+      if there is a valid user authenticated each time 
+      this widget is rebuilded.
+           - case true: It displays the products overview
+                        screen
+           - case false: Otherwise it displays the log
+                         in page to put some user
+                         credentials.
+
+      On the second place the app will check if this authenticated
+      user (in the case were true) have an invalid or expired 
+      session token. So, using a FutureBuilder widget 
+      the app will invoke each time this page is rebuilded
+      the [tryAuthLogIn] function.
+
+      The [tryAuthLogIn] function checks in base of a DateTime 
+      object if current session token is still living. If its not 
+      then the function will invoke the logOut() function 
+      killing all local variables related to the living user 
+      session and rebuild this page to display the AuthPage 
+      instead.
+
+      While the app is processing if the existing authenticated user 
+      session is valid or not it will display a splash screen to
+      improve the user experience. To accomplish that is necesary
+      to check the connection state of the AsyncSnap object given 
+      from the FutureBuilder implemented before.
+
+      
+       */
       child: Consumer<Auth>(
         builder: (BuildContext ctx, Auth auth, Widget child) => MaterialApp(
           title: 'My Shop',
@@ -111,7 +147,15 @@ class MyApp extends StatelessWidget {
             fontFamily: 'Lato',
           ),
           //home: ProductsOverviewScreen(),
-          home: (auth.isAuth) ? ProductsOverviewScreen() : AuthScreen(),
+          home: (auth.isAuth)
+              ? ProductsOverviewScreen()
+              : FutureBuilder(
+                  future: auth.tryAutoLogIn(),
+                  builder: (BuildContext ctx, AsyncSnapshot snap) =>
+                      (snap.connectionState == ConnectionState.waiting)
+                          ? SplashScreen()
+                          : AuthScreen(),
+                ),
           routes: {
             //0
             ProductDetailScreen.routeName: (BuildContext ctx) =>

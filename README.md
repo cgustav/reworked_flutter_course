@@ -47,7 +47,7 @@ of app development using Flutter Framework.
 * Introducing to [RESTful](https://docs.oracle.com/javaee/6/tutorial/doc/gijqy.html)(and stateless) services (endpoints, authentication & authorization mechanisms).
 * Introducing to [Authentication services](https://www.sciencedirect.com/topics/computer-science/authentication-server)
 * Introducing to [Web Tokens](https://jwt.io/introduction/) and token negotiation. [Extra - Guidelines to negotiate web tokens on the front end side](https://blog.hasura.io/best-practices-of-using-jwt-with-graphql/).  
-
+* Implementing [Shared Preferences](https://pub.dev/packages/shared_preferences#-readme-tab-) flutter's package to store our user session token on the device.
 
 #### How authentication works
 <img src="./screenshots/authentication.png" width="600" height="400"/>

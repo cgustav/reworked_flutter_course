@@ -172,7 +172,10 @@ class _AuthCardState extends State<AuthCard> {
         errorMessage = 'Invalid password.';
 
       _showErrorDialog(errorMessage);
-    } catch (error) {
+    } catch (error, stackTrace) {
+      print('ERROR      : $error');
+      print('STACKTRACE : $stackTrace');
+
       const errorMessage =
           'Could not authenticate you. Please try again later.';
       _showErrorDialog(errorMessage);
