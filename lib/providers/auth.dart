@@ -100,6 +100,7 @@ class Auth with ChangeNotifier {
   }
 
   Future<bool> tryAutoLogIn() async {
+    // SharedPreferences.setMockInitialValues({});
     final prefs = await SharedPreferences.getInstance();
 
     //If there aren't any userData object

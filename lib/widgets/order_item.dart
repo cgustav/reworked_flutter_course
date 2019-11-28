@@ -39,9 +39,12 @@ class _OrderItemState extends State<OrderItem> {
             ),
           ),
           (_expanded)
-              ? Container(
+              ? AnimatedContainer(
+                  duration: Duration(milliseconds: 300),
                   padding: EdgeInsets.symmetric(horizontal: 20, vertical: 4),
-                  height: min(widget.order.products.length * 20.0 + 40.0, 160),
+                  height: _expanded
+                      ? min(widget.order.products.length * 20.0 + 60.0, 190)
+                      : 0,
                   child: ListView(
                     children: widget.order.products
                         .map((CartItem item) => Row(
