@@ -52,7 +52,9 @@ of app development using Flutter Framework.
 #### How authentication works
 <img src="./screenshots/authentication.png" width="600" height="400"/>
 
-### [Module 12] - Animating flutter Apps
-* Introducing to concepts like Move, Spin, Scale, Fade & more.
-* Introducing to AnimationController.
-* Introducing to transitions.
+### [Module 12] - Animating flutter Apps 
+* Introducing to [animations](https://flutter.dev/docs/development/ui/animations/tutorial)
+* Introducing to concepts like Move, [Spin](https://inducesmile.com/google-flutter/how-to-create-rotate-animation-in-flutter/), [Scale](https://www.woolha.com/tutorials/flutter-scaletransition-animation-example), [Fade](https://api.flutter.dev/flutter/widgets/FadeTransition-class.html) & more.
+* Introducing to [AnimationController](https://api.flutter.dev/flutter/animation/AnimationController-class.html).
+* Introducing to [transitions](https://flutter.dev/docs/cookbook/animation/page-route-animation).
+
